@@ -7,8 +7,9 @@ import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/http_exception.dart';
+import '../consts.dart' as constants;
 
-const urlStart = 'http://192.168.1.101/Server/API/';
+const urlStart = constants.url;
 
 class Settings with ChangeNotifier {
   dynamic _theme = false;
@@ -65,7 +66,6 @@ class Settings with ChangeNotifier {
           'Notifications': responseData['data']['Notifications'],
           'Radius': responseData['data']['Radius'],
           'AudioTitle': responseData['data']['AudioTitle'],
-          //'Audio': responseData['data']['Audio'],
         },
       );
 
@@ -159,6 +159,7 @@ class Settings with ChangeNotifier {
           'authorization': token,
         },
       );
+      print(response.body);
       final responseData = jsonDecode(response.body);
 
       if (responseData['error'] != null) {
@@ -183,7 +184,7 @@ class Settings with ChangeNotifier {
       'Notifications': notifications,
       'Radius': radius,
       'AudioTitle': audioTitle,
-      //'Audio': audio,
+      'Audio': audio,
     };
     return result;
   }

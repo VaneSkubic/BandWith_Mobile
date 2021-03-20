@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -8,6 +7,9 @@ import 'package:flutter_music_app/Screens/settings_screen.dart';
 import '../Providers/auth.dart';
 import 'package:provider/provider.dart';
 import '../Providers/explore.dart';
+import '../consts.dart' as constants;
+
+const urlStart = constants.url;
 
 dynamic explore;
 
@@ -117,11 +119,11 @@ class _ExplorePageState extends State<ExplorePage> {
   final audioPlayer = AudioPlayer();
   bool playPause = false;
 
-  playAudio() async {
+  playAudio(index) async {
     if (playPause) {
       audioPlayer.pause();
     } else {
-      await audioPlayer.play('http://192.168.1.101/Server/API/Rosanna.wav');
+      await audioPlayer.play(urlStart + 'Assets/Audio/' + index);
     }
 
     setState(() {
@@ -196,9 +198,14 @@ class _ExplorePageState extends State<ExplorePage> {
                                 image: data[index]["image"] != null
                                     ? DecorationImage(
                                         fit: BoxFit.cover,
-                                        image: MemoryImage(Base64Decoder()
-                                            .convert(data[index]["image"]
-                                                .toString())),
+                                        image: NetworkImage(
+                                          urlStart +
+                                              "Assets/Images/" +
+                                              data[index]["image"].toString(),
+                                        ),
+                                        // MemoryImage(Base64Decoder()
+                                        //     .convert(data[index]["image"]
+                                        //         .toString())),
                                       )
                                     : DecorationImage(
                                         fit: BoxFit.cover,
@@ -393,7 +400,7 @@ class _ExplorePageState extends State<ExplorePage> {
                                       ? Icon(Icons.pause_rounded)
                                       : Icon(Icons.play_arrow_rounded),
                                   onPressed: () {
-                                    playAudio();
+                                    playAudio(data[index]['audio']);
                                   },
                                 ),
                               ),

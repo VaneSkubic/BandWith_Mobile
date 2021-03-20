@@ -3,8 +3,9 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:http/http.dart' as http;
+import '../consts.dart' as constants;
 
-const urlStart = 'http://192.168.1.101/Server/API/';
+const urlStart = constants.url;
 
 class Chat with ChangeNotifier {
   dynamic _userFavorites = [];
@@ -43,6 +44,7 @@ class Chat with ChangeNotifier {
       }
 
       _userFavorites = responseData['data'];
+      print(_userFavorites);
 
       notifyListeners();
     } catch (error) {
@@ -64,6 +66,8 @@ class Chat with ChangeNotifier {
       if (responseData['error'] != null) {
         throw HttpException(responseData['error']);
       }
+
+      print(responseData['data']);
 
       _userConversations = responseData['data'];
 

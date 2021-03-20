@@ -1,8 +1,10 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import '../Providers/auth.dart';
 import '../Providers/chat.dart';
 import 'package:provider/provider.dart';
+import '../consts.dart' as constants;
+
+const urlStart = constants.url;
 
 class ChatPage extends StatefulWidget {
   static const routeName = '/chatRoom';
@@ -51,8 +53,8 @@ class _ChatPageState extends State<ChatPage> {
                   width: 2,
                 ),
                 CircleAvatar(
-                  backgroundImage: MemoryImage(
-                    Base64Decoder().convert(userData["image"].toString()),
+                  backgroundImage: NetworkImage(
+                    urlStart + "Assets/Images/" + userData["image"].toString(),
                   ),
                   maxRadius: 20,
                 ),

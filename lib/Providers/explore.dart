@@ -3,8 +3,9 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:http/http.dart' as http;
+import '../consts.dart' as constants;
 
-const urlStart = 'http://192.168.1.101/Server/API/';
+const urlStart = constants.url;
 
 class Explore with ChangeNotifier {
   dynamic _usersData = [];

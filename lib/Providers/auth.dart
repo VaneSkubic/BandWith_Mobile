@@ -6,8 +6,9 @@ import 'package:flutter/widgets.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/http_exception.dart';
+import '../consts.dart' as constants;
 
-const urlStart = 'http://192.168.1.101/Server/API/';
+const urlStart = constants.url;
 
 class Auth with ChangeNotifier {
   String _token;

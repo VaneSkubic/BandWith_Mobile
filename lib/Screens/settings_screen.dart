@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:file_picker/file_picker.dart';
@@ -10,12 +9,15 @@ import '../Providers/settings.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'dart:async';
+import '../consts.dart' as constants;
+
+const urlStart = constants.url;
 
 bool _notifications;
 bool _darkMode;
 double _rangeValue;
-String _base64Image;
-//String _base64Audio;
+String _imageID;
+String _audioID;
 Map settingsData = {
   'Name': null,
   'Surname': null,
@@ -113,7 +115,8 @@ class _SettingsPageState extends State<SettingsPage> {
     if (playPause) {
       audioPlayer.pause();
     } else {
-      await audioPlayer.play('http://192.168.1.101/Server/API/Rosanna.wav');
+      print(urlStart + 'Assets/Audio/' + _audioID);
+      await audioPlayer.play(urlStart + 'Assets/Audio/' + _audioID);
     }
 
     setState(() {
@@ -134,8 +137,8 @@ class _SettingsPageState extends State<SettingsPage> {
         _notifications = settingsData['Notifications'] == '1';
         _darkMode = settingsData['UIColor'] == '1';
         _rangeValue = double.parse(settingsData['Radius']);
-        _base64Image = settingsData['ProfileImage'];
-        //_base64Audio = settingsData['Audio'];
+        _imageID = settingsData['ProfileImage'];
+        _audioID = settingsData['Audio'];
       });
     });
   }
@@ -227,8 +230,11 @@ class _SettingsPageState extends State<SettingsPage> {
                         fit: BoxFit.cover,
                         image: settingsData['ProfileImage'] == null
                             ? AssetImage('Assets/Profile.png')
-                            : MemoryImage(
-                                Base64Decoder().convert(_base64Image)),
+                            : NetworkImage(
+                                urlStart +
+                                    "Assets/Images/" +
+                                    _imageID.toString(),
+                              ),
                       ),
               ),
             ),

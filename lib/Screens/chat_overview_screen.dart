@@ -1,6 +1,4 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import '../Screens/chat_page.dart';
 import '../Providers/chat.dart';
 import '../Providers/auth.dart';
@@ -170,9 +168,9 @@ class _ChatOverviewState extends State<ChatOverview> {
                   leading: CircleAvatar(
                     radius: 30,
                     backgroundImage: userConversations[index]["image"] != null
-                        ? MemoryImage(
-                            Base64Decoder().convert(
-                                userConversations[index]["image"].toString()),
+                        ? NetworkImage(
+                            "http://192.168.1.100/Server/API/Assets/Images/" +
+                                userConversations[index]["image"].toString(),
                           )
                         : AssetImage('Assets/Profile.png'),
                   ),
@@ -222,8 +220,6 @@ class Favorites extends StatefulWidget {
 class _FavoritesState extends State<Favorites> {
   @override
   Widget build(BuildContext context) {
-    final chat = Provider.of<Chat>(context, listen: false);
-    final auth = Provider.of<Auth>(context, listen: false);
     dynamic userFavorites = Provider.of<Chat>(context).userFavorites;
     return ListView.builder(
       itemCount: userFavorites.length,
@@ -236,9 +232,9 @@ class _FavoritesState extends State<Favorites> {
                 leading: CircleAvatar(
                   radius: 30,
                   backgroundImage: userFavorites[index]["image"] != null
-                      ? MemoryImage(
-                          Base64Decoder().convert(
-                              userFavorites[index]["image"].toString()),
+                      ? NetworkImage(
+                          "http://192.168.1.100/Server/API/Assets/Images/" +
+                              userFavorites[index]["image"].toString(),
                         )
                       : AssetImage('Assets/Profile.png'),
                 ),
