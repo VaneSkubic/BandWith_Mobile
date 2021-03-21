@@ -3,6 +3,9 @@ import '../Screens/chat_page.dart';
 import '../Providers/chat.dart';
 import '../Providers/auth.dart';
 import 'package:provider/provider.dart';
+import '../consts.dart' as constants;
+
+const urlStart = constants.url;
 
 class ChatOverviewScreen extends StatefulWidget {
   static const routeName = '/chat';
@@ -169,7 +172,8 @@ class _ChatOverviewState extends State<ChatOverview> {
                     radius: 30,
                     backgroundImage: userConversations[index]["image"] != null
                         ? NetworkImage(
-                            "http://192.168.1.100/Server/API/Assets/Images/" +
+                            urlStart +
+                                "Assets/Images/" +
                                 userConversations[index]["image"].toString(),
                           )
                         : AssetImage('Assets/Profile.png'),
@@ -233,7 +237,8 @@ class _FavoritesState extends State<Favorites> {
                   radius: 30,
                   backgroundImage: userFavorites[index]["image"] != null
                       ? NetworkImage(
-                          "http://192.168.1.100/Server/API/Assets/Images/" +
+                          urlStart +
+                              "Assets/Images/" +
                               userFavorites[index]["image"].toString(),
                         )
                       : AssetImage('Assets/Profile.png'),

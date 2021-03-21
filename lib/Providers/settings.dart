@@ -5,15 +5,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../models/http_exception.dart';
 import '../consts.dart' as constants;
+//import 'package:shared_preferences/shared_preferences.dart';
 
 const urlStart = constants.url;
 
 class Settings with ChangeNotifier {
   dynamic _theme = false;
-  dynamic userSettings;
+  dynamic _userSettings;
   dynamic _userInstruments;
 
   bool _isOpening = true;
@@ -26,19 +26,13 @@ class Settings with ChangeNotifier {
     return _userInstruments;
   }
 
+  dynamic get userSettings {
+    return _userSettings;
+  }
+
   void changeIsOpening() {
     _isOpening = !_isOpening;
   }
-
-  String name;
-  String surname;
-  String email;
-  String profileImage;
-  String audio;
-  String uiColor;
-  String notifications;
-  String radius;
-  String audioTitle;
 
   Future<void> getSettings(String token) async {
     final url = urlStart + 'GetSettings.php';
@@ -56,32 +50,9 @@ class Settings with ChangeNotifier {
         throw HttpException(responseData['error']);
       }
 
-      final userSettings = json.encode(
-        {
-          'Name': responseData['data']['Name'],
-          'Surname': responseData['data']['Surname'],
-          'Email': responseData['data']['Email'],
-          'ProfileImage': responseData['data']['ProfileImage'],
-          'UIColor': responseData['data']['UIColor'],
-          'Notifications': responseData['data']['Notifications'],
-          'Radius': responseData['data']['Radius'],
-          'AudioTitle': responseData['data']['AudioTitle'],
-        },
-      );
-
-      name = responseData['data']['Name'];
-      surname = responseData['data']['Surname'];
-      email = responseData['data']['Email'];
-      profileImage = responseData['data']['ProfileImage'];
-      uiColor = responseData['data']['UIColor'];
-      notifications = responseData['data']['Notifications'];
-      radius = responseData['data']['Radius'];
-      audioTitle = responseData['data']['AudioTitle'];
-      audio = responseData['data']['Audio'];
+      _userSettings = responseData['data'];
 
       notifyListeners();
-      final prefs = await SharedPreferences.getInstance();
-      prefs.setString('userSettings', userSettings);
     } catch (error) {
       throw error;
     }
@@ -159,7 +130,6 @@ class Settings with ChangeNotifier {
           'authorization': token,
         },
       );
-      print(response.body);
       final responseData = jsonDecode(response.body);
 
       if (responseData['error'] != null) {
@@ -167,26 +137,9 @@ class Settings with ChangeNotifier {
       }
 
       notifyListeners();
-      final prefs = await SharedPreferences.getInstance();
-      prefs.setString('userSettings', userSettings);
     } catch (error) {
       throw error;
     }
-  }
-
-  dynamic fetchSettings() {
-    Map result = {
-      'Name': name,
-      'Surname': surname,
-      'Email': email,
-      'ProfileImage': profileImage,
-      'UIColor': uiColor,
-      'Notifications': notifications,
-      'Radius': radius,
-      'AudioTitle': audioTitle,
-      'Audio': audio,
-    };
-    return result;
   }
 
   // Future<void> getThemeValue() async {
@@ -202,10 +155,11 @@ class Settings with ChangeNotifier {
   // }
 
   bool get theme {
-    if (uiColor != null && uiColor == 'true') {
-      _theme = true;
-    }
-    return _theme;
+    // if (uiColor != null && uiColor == 'true') {
+    //   _theme = true;
+    // }
+    // return _theme;
+    return false;
   }
 
   Future<void> switchTheme() async {

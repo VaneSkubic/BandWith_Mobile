@@ -44,7 +44,6 @@ class Chat with ChangeNotifier {
       }
 
       _userFavorites = responseData['data'];
-      print(_userFavorites);
 
       notifyListeners();
     } catch (error) {
@@ -66,8 +65,6 @@ class Chat with ChangeNotifier {
       if (responseData['error'] != null) {
         throw HttpException(responseData['error']);
       }
-
-      print(responseData['data']);
 
       _userConversations = responseData['data'];
 

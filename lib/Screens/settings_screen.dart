@@ -16,17 +16,11 @@ const urlStart = constants.url;
 bool _notifications;
 bool _darkMode;
 double _rangeValue;
-String _imageID;
+
+PickedFile _image;
 String _audioID;
-Map settingsData = {
-  'Name': null,
-  'Surname': null,
-  'Email': null,
-  'ProfileImage': null,
-  'UIColor': null,
-  'Notifications': null,
-  'Radius': null,
-};
+
+AnimationController _animationController;
 
 class SettingsScreen extends StatefulWidget {
   static const routeName = '/settings';
@@ -35,7 +29,8 @@ class SettingsScreen extends StatefulWidget {
   _SettingsScreenState createState() => _SettingsScreenState();
 }
 
-class _SettingsScreenState extends State<SettingsScreen> {
+class _SettingsScreenState extends State<SettingsScreen>
+    with TickerProviderStateMixin {
   Future getSettings;
   dynamic settings;
   dynamic auth;
@@ -43,29 +38,28 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   void initState() {
     super.initState();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 250),
+    );
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      auth = Provider.of<Auth>(context, listen: false);
-    });
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      settings = Provider.of<Settings>(context, listen: false);
       setState(() {
+        auth = Provider.of<Auth>(context, listen: false);
+        settings = Provider.of<Settings>(context, listen: false);
         getSettings = settings.getSettings(auth.token);
       });
-      getSettings = settings.getSettings(auth.token);
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    _darkMode = Provider.of<Settings>(context).theme;
+    _darkMode = true;
 
     return Consumer2<Settings, Auth>(
       builder: (ctx, settings, auth, _) => FutureBuilder(
         future: getSettings,
         builder: (ctx, settingsResultSnapshot) =>
-            (settingsResultSnapshot.connectionState ==
-                        ConnectionState.waiting &&
-                    settingsData['Email'] == null)
+            (settingsResultSnapshot.connectionState == ConnectionState.waiting)
                 ? EmptyPage()
                 : SettingsPage(),
       ),
@@ -82,12 +76,14 @@ class _SettingsPageState extends State<SettingsPage> {
   dynamic auth;
   dynamic settings;
 
-  PickedFile _image;
   PickedFile _audio;
 
   bool playPause = false;
 
   Future pickAudio() async {
+    audioPlayer.pause();
+    audioPlayer.stop();
+    _animationController.reverse();
     FilePickerResult result =
         await FilePicker.platform.pickFiles(type: FileType.audio);
 
@@ -102,6 +98,9 @@ class _SettingsPageState extends State<SettingsPage> {
   final audioPlayer = AudioPlayer();
 
   Future getImage() async {
+    audioPlayer.pause();
+    audioPlayer.stop();
+    _animationController.reverse();
     final pickedFile = await picker.getImage(source: ImageSource.gallery);
 
     setState(() {
@@ -114,10 +113,18 @@ class _SettingsPageState extends State<SettingsPage> {
   playAudio() async {
     if (playPause) {
       audioPlayer.pause();
+      _animationController.reverse();
     } else {
-      print(urlStart + 'Assets/Audio/' + _audioID);
+      _animationController.forward();
       await audioPlayer.play(urlStart + 'Assets/Audio/' + _audioID);
     }
+
+    audioPlayer.onPlayerCompletion.listen((event) {
+      setState(() {
+        playPause = !playPause;
+        _animationController.reverse();
+      });
+    });
 
     setState(() {
       playPause = !playPause;
@@ -125,42 +132,12 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      auth = Provider.of<Auth>(context, listen: false);
-    });
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      settings = Provider.of<Settings>(context, listen: false);
-      setState(() {
-        settingsData = settings.fetchSettings();
-        _notifications = settingsData['Notifications'] == '1';
-        _darkMode = settingsData['UIColor'] == '1';
-        _rangeValue = double.parse(settingsData['Radius']);
-        _imageID = settingsData['ProfileImage'];
-        _audioID = settingsData['Audio'];
-      });
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
     settings = Provider.of<Settings>(context, listen: false);
     auth = Provider.of<Auth>(context, listen: false);
-    if (settings.isOpening) {
-      settings.getSettings(auth.token);
-      settingsData = settings.fetchSettings();
-      _notifications = settingsData['Notifications'] == '1';
-      _darkMode = settingsData['UIColor'] == '1';
-      if (settingsData['Radius'] != null) {
-        setState(() {
-          settings.changeIsOpening();
-          _rangeValue = double.parse(settingsData['Radius']);
-        });
-      } else {
-        _rangeValue = null;
-      }
-    }
+    dynamic userSettings = Provider.of<Settings>(context).userSettings;
+    _audioID = userSettings['Audio'];
+
     return Scaffold(
       appBar: AppBar(
         actions: [
@@ -217,7 +194,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         : Colors.grey.withOpacity(0.5),
                     spreadRadius: 5,
                     blurRadius: _darkMode ? 30 : 12,
-                    offset: Offset(0, 3), // changes position of shadow
+                    offset: Offset(0, 3),
                   ),
                 ],
                 shape: BoxShape.circle,
@@ -228,13 +205,11 @@ class _SettingsPageState extends State<SettingsPage> {
                       )
                     : DecorationImage(
                         fit: BoxFit.cover,
-                        image: settingsData['ProfileImage'] == null
-                            ? AssetImage('Assets/Profile.png')
-                            : NetworkImage(
-                                urlStart +
-                                    "Assets/Images/" +
-                                    _imageID.toString(),
-                              ),
+                        image: NetworkImage(
+                          urlStart +
+                              "Assets/Images/" +
+                              userSettings['ProfileImage'].toString(),
+                        ),
                       ),
               ),
             ),
@@ -259,10 +234,7 @@ class _SettingsPageState extends State<SettingsPage> {
             child: Column(
               children: [
                 Text(
-                  (settingsData['Name'] != null &&
-                          settingsData['Surname'] != null)
-                      ? settingsData['Name'] + ' ' + settingsData['Surname']
-                      : '',
+                  userSettings['Name'] + ' ' + userSettings['Surname'],
                   style: TextStyle(
                     fontWeight: FontWeight.w600,
                     fontSize: 30,
@@ -272,7 +244,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   height: 10,
                 ),
                 Text(
-                  settingsData['Email'] == null ? '' : settingsData['Email'],
+                  userSettings['Email'],
                   style: TextStyle(fontSize: 16, color: Colors.grey),
                 ),
               ],
@@ -296,9 +268,10 @@ class _SettingsPageState extends State<SettingsPage> {
                     ),
                   ),
                   IconButton(
-                    icon: playPause
-                        ? Icon(Icons.pause_rounded)
-                        : Icon(Icons.play_arrow_rounded),
+                    icon: AnimatedIcon(
+                      icon: AnimatedIcons.play_pause,
+                      progress: _animationController,
+                    ),
                     onPressed: () {
                       playAudio();
                     },
@@ -307,9 +280,7 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
               subtitle: _audio == null
                   ? Text(
-                      settingsData['AudioTitle'] != null
-                          ? settingsData['AudioTitle']
-                          : '',
+                      userSettings['AudioTitle'],
                     )
                   : Text(_audio.path.split("/").last),
               onTap: () {
@@ -358,45 +329,45 @@ class _SettingsPageState extends State<SettingsPage> {
           //     },
           //   ),
           // ),
-          Container(
-            padding: const EdgeInsets.all(5),
-            child: SwitchListTile(
-              value: _notifications == null ? false : _notifications,
-              title: Text(
-                "Notifications",
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              subtitle: Text("Toggle notification status"),
-              onChanged: (value) {
-                setState(() {
-                  _notifications = value;
-                });
-              },
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.all(5),
-            child: SwitchListTile(
-              value: _darkMode == null ? false : _darkMode,
-              title: Text(
-                "Dark Theme",
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              subtitle: Text("Toggle dark theme"),
-              onChanged: (value) {
-                Provider.of<Settings>(context, listen: false).switchTheme();
-                setState(() {
-                  _darkMode = value;
-                });
-              },
-            ),
-          ),
+          // Container(
+          //   padding: const EdgeInsets.all(5),
+          //   child: SwitchListTile(
+          //     value: _notifications == null ? false : _notifications,
+          //     title: Text(
+          //       "Notifications",
+          //       style: TextStyle(
+          //         fontSize: 18,
+          //         fontWeight: FontWeight.w500,
+          //       ),
+          //     ),
+          //     subtitle: Text("Toggle notification status"),
+          //     onChanged: (value) {
+          //       setState(() {
+          //         _notifications = value;
+          //       });
+          //     },
+          //   ),
+          // ),
+          // Container(
+          //   padding: const EdgeInsets.all(5),
+          //   child: SwitchListTile(
+          //     value: _darkMode == null ? false : _darkMode,
+          //     title: Text(
+          //       "Dark Theme",
+          //       style: TextStyle(
+          //         fontSize: 18,
+          //         fontWeight: FontWeight.w500,
+          //       ),
+          //     ),
+          //     subtitle: Text("Toggle dark theme"),
+          //     onChanged: (value) {
+          //       Provider.of<Settings>(context, listen: false).switchTheme();
+          //       setState(() {
+          //         _darkMode = value;
+          //       });
+          //     },
+          //   ),
+          // ),
           // Padding(
           //   padding: const EdgeInsets.all(5.0),
           //   child: ListTile(

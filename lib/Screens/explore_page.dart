@@ -13,6 +13,8 @@ const urlStart = constants.url;
 
 dynamic explore;
 
+AnimationController _iconController;
+
 class ExploreScreen extends StatefulWidget {
   static const routeName = '/explore';
 
@@ -20,13 +22,20 @@ class ExploreScreen extends StatefulWidget {
   _ExploreScreenState createState() => _ExploreScreenState();
 }
 
-class _ExploreScreenState extends State<ExploreScreen> {
+class _ExploreScreenState extends State<ExploreScreen>
+    with TickerProviderStateMixin {
   Future getUsers;
   dynamic auth;
 
   @override
   void initState() {
     super.initState();
+
+    _iconController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 250),
+    );
+
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       explore = Provider.of<Explore>(context, listen: false);
       auth = Provider.of<Auth>(context, listen: false);
@@ -122,9 +131,18 @@ class _ExplorePageState extends State<ExplorePage> {
   playAudio(index) async {
     if (playPause) {
       audioPlayer.pause();
+      _iconController.reverse();
     } else {
+      _iconController.forward();
       await audioPlayer.play(urlStart + 'Assets/Audio/' + index);
     }
+
+    audioPlayer.onPlayerCompletion.listen((event) {
+      setState(() {
+        playPause = !playPause;
+        _iconController.reverse();
+      });
+    });
 
     setState(() {
       playPause = !playPause;
@@ -137,7 +155,9 @@ class _ExplorePageState extends State<ExplorePage> {
     final explore = Provider.of<Explore>(context, listen: false);
     final data = Provider.of<Explore>(context, listen: false).usersData;
     horizontalController.addListener(() {
+      _iconController.reverse();
       audioPlayer.stop();
+      audioPlayer.release();
       if (playPause) {
         playPause = !playPause;
       }
@@ -396,22 +416,22 @@ class _ExplorePageState extends State<ExplorePage> {
                                     top: 10.0, left: 17, right: 10, bottom: 10),
                                 child: IconButton(
                                   iconSize: 50,
-                                  icon: playPause
-                                      ? Icon(Icons.pause_rounded)
-                                      : Icon(Icons.play_arrow_rounded),
+                                  icon: AnimatedIcon(
+                                    icon: AnimatedIcons.play_pause,
+                                    progress: _iconController,
+                                  ),
                                   onPressed: () {
                                     playAudio(data[index]['audio']);
                                   },
                                 ),
                               ),
-                              VerticalDivider(
-                                thickness: 2,
-                                color: Colors.black54,
-                              ),
                               Expanded(
                                 child: Padding(
-                                  padding: EdgeInsets.symmetric(
-                                      vertical: 5, horizontal: 5),
+                                  padding: EdgeInsets.only(
+                                    top: 5,
+                                    bottom: 5,
+                                    right: 5,
+                                  ),
                                   child: Container(
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.only(
@@ -435,11 +455,17 @@ class _ExplorePageState extends State<ExplorePage> {
                 ),
               ),
               Center(
-                child: Icon(
-                  Icons.favorite_rounded,
-                  size: 100,
-                  color: Colors.red,
-                ),
+                child: data[index]['favorite']
+                    ? Icon(
+                        Icons.favorite_rounded,
+                        size: 100,
+                        color: Colors.red,
+                      )
+                    : Icon(
+                        Icons.favorite_border_rounded,
+                        size: 100,
+                        color: Colors.red,
+                      ),
               )
             ],
           );
@@ -461,15 +487,17 @@ Widget iconList(dynamic data, int index) {
               data[index]['instruments'][i].toString().replaceAll('/', '') +
               '.png'),
           color: Colors.white,
+          size: 25,
         ),
       ),
     );
     widgets.add(
-      Text(
-        ' | ',
-        style: TextStyle(
+      RotatedBox(
+        quarterTurns: 1,
+        child: Icon(
+          Icons.horizontal_rule_rounded,
           color: Colors.white,
-          fontSize: 30,
+          size: 45,
         ),
       ),
     );
