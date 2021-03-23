@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_music_app/Providers/explore.dart';
 import '../Screens/chat_page.dart';
 import '../Providers/chat.dart';
 import '../Providers/auth.dart';
@@ -224,54 +225,142 @@ class Favorites extends StatefulWidget {
 class _FavoritesState extends State<Favorites> {
   @override
   Widget build(BuildContext context) {
+    final auth = Provider.of<Auth>(context, listen: false);
+    final explore = Provider.of<Explore>(context, listen: false);
     dynamic userFavorites = Provider.of<Chat>(context).userFavorites;
     return ListView.builder(
       itemCount: userFavorites.length,
       itemBuilder: (ctx, index) {
         return Column(
           children: [
-            Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: ListTile(
-                leading: CircleAvatar(
-                  radius: 30,
-                  backgroundImage: userFavorites[index]["image"] != null
-                      ? NetworkImage(
-                          urlStart +
-                              "Assets/Images/" +
-                              userFavorites[index]["image"].toString(),
-                        )
-                      : AssetImage('Assets/Profile.png'),
-                ),
-                trailing: IconButton(
-                  icon: Icon(Icons.messenger_outline_rounded),
-                  onPressed: () {
-                    // chat.newConversation(
-                    //     auth.token,
-                    //     userFavorites[index]['name'],
-                    //     userFavorites[index]['surname']);
-                    Navigator.of(context)
-                        .pushNamed(ChatPage.routeName, arguments: {
-                      'name': userFavorites[index]['name'],
-                      'surname': userFavorites[index]['surname'],
-                      'image': userFavorites[index]['image'],
-                      'first': true,
-                    });
-                  },
-                ),
-                title: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 5),
-                  child: Text(
-                    userFavorites[index]['name'] +
-                        ' ' +
-                        userFavorites[index]['surname'],
-                    style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w500,
-                        fontFamily: 'Montserrat'),
+            InkWell(
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: ListTile(
+                  leading: CircleAvatar(
+                    radius: 30,
+                    backgroundImage: userFavorites[index]["image"] != null
+                        ? NetworkImage(
+                            urlStart +
+                                "Assets/Images/" +
+                                userFavorites[index]["image"].toString(),
+                          )
+                        : AssetImage('Assets/Profile.png'),
+                  ),
+                  trailing: IconButton(
+                    icon: Icon(Icons.messenger_outline_rounded),
+                    onPressed: () {
+                      Navigator.of(context)
+                          .pushNamed(ChatPage.routeName, arguments: {
+                        'name': userFavorites[index]['name'],
+                        'surname': userFavorites[index]['surname'],
+                        'image': userFavorites[index]['image'],
+                        'first': true,
+                      });
+                    },
+                  ),
+                  title: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 5),
+                    child: Text(
+                      userFavorites[index]['name'] +
+                          ' ' +
+                          userFavorites[index]['surname'],
+                      style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w500,
+                          fontFamily: 'Montserrat'),
+                    ),
                   ),
                 ),
               ),
+              onLongPress: () {
+                showModalBottomSheet(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: new BorderRadius.only(
+                      topLeft: const Radius.circular(10.0),
+                      topRight: const Radius.circular(10.0),
+                    ),
+                  ),
+                  context: context,
+                  builder: (context) {
+                    return Container(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: <Widget>[
+                          Icon(
+                            Icons.horizontal_rule_rounded,
+                            size: 30,
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(
+                                left: 20.0, top: 20.0, bottom: 30),
+                            child: Container(
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                userFavorites[index]['name'] +
+                                    ' ' +
+                                    userFavorites[index]['surname'],
+                                style: TextStyle(
+                                  fontSize: 25,
+                                  letterSpacing: 2,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ),
+                          ListTile(
+                            leading: Padding(
+                              padding:
+                                  const EdgeInsets.only(left: 10.0, bottom: 25),
+                              child: Icon(Icons.favorite_border_rounded),
+                            ),
+                            title: Padding(
+                              padding:
+                                  const EdgeInsets.only(left: 8.0, bottom: 20),
+                              child: Text(
+                                'Unlike',
+                              ),
+                            ),
+                            onTap: () {
+                              setState(() {
+                                explore.updateLikes(
+                                  auth.token,
+                                  userFavorites[index]['name'],
+                                  userFavorites[index]['surname'],
+                                  false,
+                                );
+                                explore.toggleFavorite(index);
+                                userFavorites.removeAt(index);
+                              });
+                              Navigator.pop(context);
+                            },
+                          ),
+                          ListTile(
+                            leading: Padding(
+                              padding:
+                                  const EdgeInsets.only(left: 10, bottom: 35),
+                              child: Icon(Icons.report_gmailerrorred_rounded),
+                            ),
+                            title: Padding(
+                              padding:
+                                  const EdgeInsets.only(left: 8.0, bottom: 35),
+                              child: Text(
+                                'Report',
+                              ),
+                            ),
+                            onTap: () {
+                              setState(() {
+                                userFavorites.removeAt(index);
+                              });
+                              Navigator.pop(context);
+                            },
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                );
+              },
             ),
             Divider(),
           ],
