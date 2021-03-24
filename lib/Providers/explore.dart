@@ -18,6 +18,10 @@ class Explore with ChangeNotifier {
     _usersData[index]['favorite'] = !_usersData[index]['favorite'];
   }
 
+  void removeUser(int index) {
+    _usersData.removeAt(index);
+  }
+
   Future<void> getUsers(String token) async {
     final url = urlStart + 'ReadUserInfo.php/';
     try {

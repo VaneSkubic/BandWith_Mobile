@@ -121,54 +121,68 @@ class _InstrumentsPageState extends State<InstrumentsPage> {
                     if (!filteredInstruments.contains(key)) tmp.add(key);
                   },
                 );
-                showModalBottomSheet<void>(
+                showModalBottomSheet(
                   context: context,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: new BorderRadius.only(
+                      topLeft: const Radius.circular(10.0),
+                      topRight: const Radius.circular(10.0),
+                    ),
+                  ),
                   builder: (BuildContext context) {
-                    return Container(
-                      height: 380,
-                      child: Center(
-                        child: ListView.builder(
-                          itemCount: tmp != null ? tmp.length : 0,
-                          itemBuilder: (ctx, index) {
-                            return Column(
-                              children: [
-                                Divider(
-                                  height: 0,
-                                ),
-                                InkWell(
-                                  onTap: () {
-                                    setState(() {
-                                      filteredInstruments.add(tmp[index]);
-                                      userInstruments[tmp[index]] = 1;
-                                      Navigator.pop(context);
-                                    });
-                                  },
-                                  child: ListTile(
-                                    contentPadding: EdgeInsets.symmetric(
-                                        vertical: 20, horizontal: 30),
-                                    title: Text(
-                                      tmp[index] != null
-                                          ? tmp[index].toString()
-                                          : 'No instruments',
-                                      style: TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.w500,
+                    return Column(
+                      children: [
+                        Icon(
+                          Icons.horizontal_rule_rounded,
+                          size: 30,
+                        ),
+                        Container(
+                          height: 380,
+                          child: Center(
+                            child: ListView.builder(
+                              itemCount: tmp != null ? tmp.length : 0,
+                              itemBuilder: (ctx, index) {
+                                return Column(
+                                  children: [
+                                    Divider(
+                                      height: 0,
+                                    ),
+                                    InkWell(
+                                      onTap: () {
+                                        setState(() {
+                                          filteredInstruments.add(tmp[index]);
+                                          userInstruments[tmp[index]] = 1;
+                                          Navigator.pop(context);
+                                        });
+                                      },
+                                      child: ListTile(
+                                        contentPadding: EdgeInsets.symmetric(
+                                            vertical: 20, horizontal: 30),
+                                        title: Text(
+                                          tmp[index] != null
+                                              ? tmp[index].toString()
+                                              : 'No instruments',
+                                          style: TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                        leading: tmp[index] != null
+                                            ? ImageIcon(AssetImage('Assets/' +
+                                                tmp[index]
+                                                    .toString()
+                                                    .replaceAll('/', '') +
+                                                '.png'))
+                                            : null,
                                       ),
                                     ),
-                                    leading: tmp[index] != null
-                                        ? ImageIcon(AssetImage('Assets/' +
-                                            tmp[index]
-                                                .toString()
-                                                .replaceAll('/', '') +
-                                            '.png'))
-                                        : null,
-                                  ),
-                                ),
-                              ],
-                            );
-                          },
+                                  ],
+                                );
+                              },
+                            ),
+                          ),
                         ),
-                      ),
+                      ],
                     );
                   },
                 );

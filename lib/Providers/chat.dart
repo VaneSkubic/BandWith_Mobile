@@ -160,4 +160,30 @@ class Chat with ChangeNotifier {
       throw error;
     }
   }
+
+  Future<void> reportUser(String token, String name) async {
+    final url = urlStart + 'ReportUser.php/';
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        body: json.encode(
+          {
+            "Name": name,
+          },
+        ),
+        headers: {
+          HttpHeaders.authorizationHeader: token,
+        },
+      );
+      final responseData = jsonDecode(response.body);
+
+      if (responseData['error'] != null) {
+        throw HttpException(responseData['error']);
+      }
+
+      notifyListeners();
+    } catch (error) {
+      throw error;
+    }
+  }
 }

@@ -227,6 +227,7 @@ class _FavoritesState extends State<Favorites> {
   Widget build(BuildContext context) {
     final auth = Provider.of<Auth>(context, listen: false);
     final explore = Provider.of<Explore>(context, listen: false);
+    final chat = Provider.of<Chat>(context, listen: false);
     dynamic userFavorites = Provider.of<Chat>(context).userFavorites;
     return ListView.builder(
       itemCount: userFavorites.length,
@@ -293,7 +294,7 @@ class _FavoritesState extends State<Favorites> {
                           ),
                           Padding(
                             padding: const EdgeInsets.only(
-                                left: 20.0, top: 20.0, bottom: 30),
+                                left: 20.0, top: 15.0, bottom: 30),
                             child: Container(
                               alignment: Alignment.centerLeft,
                               child: Text(
@@ -349,10 +350,93 @@ class _FavoritesState extends State<Favorites> {
                               ),
                             ),
                             onTap: () {
-                              setState(() {
-                                userFavorites.removeAt(index);
-                              });
                               Navigator.pop(context);
+                              showDialog(
+                                  context: context,
+                                  builder: (context) {
+                                    return AlertDialog(
+                                      contentPadding: EdgeInsets.zero,
+                                      content: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Container(
+                                            alignment: Alignment.centerLeft,
+                                            decoration: BoxDecoration(
+                                              color: Colors.red[300],
+                                            ),
+                                            child: Padding(
+                                              padding:
+                                                  const EdgeInsets.all(20.0),
+                                              child: Text(
+                                                "Report",
+                                                style: TextStyle(
+                                                  color: Colors.white,
+                                                  letterSpacing: 2,
+                                                  fontSize: 25,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                          Padding(
+                                            padding: const EdgeInsets.all(20.0),
+                                            child: Text(
+                                              "Are you sure you want to report this user?",
+                                              style: TextStyle(
+                                                letterSpacing: 2,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      actions: [
+                                        OutlinedButton(
+                                          child: Text(
+                                            "No",
+                                            style: TextStyle(
+                                              color: Colors.grey,
+                                            ),
+                                          ),
+                                          onPressed: () {
+                                            Navigator.pop(context);
+                                          },
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 8.0),
+                                          child: OutlinedButton(
+                                            child: Text(
+                                              "Yes",
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                            style: OutlinedButton.styleFrom(
+                                              backgroundColor: Colors.red[300],
+                                            ),
+                                            onPressed: () {
+                                              setState(() {
+                                                chat.reportUser(
+                                                  auth.token,
+                                                  userFavorites[index]['name'],
+                                                );
+                                                explore.updateLikes(
+                                                  auth.token,
+                                                  userFavorites[index]['name'],
+                                                  userFavorites[index]
+                                                      ['surname'],
+                                                  false,
+                                                );
+                                                explore.toggleFavorite(index);
+                                                explore.removeUser(index);
+                                                userFavorites.removeAt(index);
+                                              });
+                                              Navigator.pop(context);
+                                            },
+                                          ),
+                                        ),
+                                      ],
+                                    );
+                                  });
                             },
                           ),
                         ],
