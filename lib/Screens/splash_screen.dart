@@ -9,7 +9,9 @@ class SplashScreen extends StatelessWidget {
           color: Colors.white,
         ),
         child: Center(
-          child: CircularProgressIndicator(),
+          child: CircularProgressIndicator(
+            valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
+          ),
         ),
       ),
     );

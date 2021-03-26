@@ -15,6 +15,8 @@ final _emailController = TextEditingController();
 final _nameController = TextEditingController();
 final _surnameController = TextEditingController();
 bool _passwordVisible = false;
+String errorMessage = '';
+bool _hasError = false;
 
 class AuthScreen extends StatelessWidget {
   static const routeName = '/auth';
@@ -119,28 +121,35 @@ class _AuthCardState extends State<AuthCard> {
           _authData['Password'],
         );
       }
+      _hasError = false;
     } on HttpException catch (error) {
-      var errorMessage = 'Authentication failed';
       if (error.toString().contains('EMAIL_EXISTS')) {
         errorMessage = 'This email adress is already in use.';
       } else if (error.toString().contains('INVALID_EMAIL')) {
-        errorMessage = 'This is not a valid email';
+        errorMessage = 'This is not a valid email.';
       } else if (error.toString().contains('WEAK_PASSWORD')) {
         errorMessage = 'This password is too weak';
-      } else if (error.toString().contains('EMAIL_NOT_FOUND')) {
-        errorMessage = 'Invalid eMail';
-      } else if (error.toString().contains('INVALID_PASSWORD')) {
-        errorMessage = 'Invalid password';
+      } else if (error.toString().contains('EMAIL_NOT_FOUND') ||
+          error.toString().contains('INVALID_PASSWORD')) {
+        errorMessage = 'Invalid email or password.';
       } else {
         errorMessage = error.toString();
       }
-      _showErrorDialog(errorMessage);
+      _hasError = true;
     } catch (error) {
       const errorMessage = 'Could not authenticate, please try later';
       _showErrorDialog(errorMessage);
     }
     setState(() {
-      _switchAuthMode();
+      _emailFocus.unfocus();
+      _passwordFocus.unfocus();
+      _nameFocus.unfocus();
+      _surnameFocus.unfocus();
+
+      _emailController.clear();
+      _passwordController.clear();
+      _nameController.clear();
+      _surnameController.clear();
       _isLoading = false;
     });
   }
@@ -330,6 +339,19 @@ class _AuthCardState extends State<AuthCard> {
             ),
           ),
         ),
+        Offstage(
+          offstage: !_hasError,
+          child: Container(
+            padding: EdgeInsets.only(left: 30, bottom: 10),
+            alignment: Alignment.centerLeft,
+            child: Text(
+              errorMessage,
+              style: TextStyle(
+                color: Colors.red,
+              ),
+            ),
+          ),
+        ),
         Container(
           alignment: Alignment.center,
           child: Row(
@@ -384,7 +406,7 @@ class _AuthCardState extends State<AuthCard> {
                   : Container(
                       child: CircularProgressIndicator(
                         backgroundColor: Colors.white.withOpacity(0),
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                       ),
                     ),
             ),
