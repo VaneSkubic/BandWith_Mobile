@@ -12,6 +12,7 @@ import '../consts.dart' as constants;
 const urlStart = constants.url;
 
 dynamic explore;
+int count = 0;
 
 AnimationController _iconController;
 
@@ -40,13 +41,14 @@ class _ExploreScreenState extends State<ExploreScreen>
       explore = Provider.of<Explore>(context, listen: false);
       auth = Provider.of<Auth>(context, listen: false);
       setState(() {
-        getUsers = explore.getUsers(auth.token);
+        getUsers = explore.getUsers(auth.token, count);
       });
     });
   }
 
   Future<void> _refreshExplore(BuildContext context) async {
-    await Provider.of<Explore>(context, listen: false).getUsers(auth.token);
+    await Provider.of<Explore>(context, listen: false)
+        .getUsers(auth.token, count);
   }
 
   @override
@@ -168,6 +170,10 @@ class _ExplorePageState extends State<ExplorePage> {
         physics: BouncingScrollPhysics(),
         itemCount: data.length,
         itemBuilder: (_, index) {
+          if (index == data.length - 3) {
+            count++;
+            explore.getUsers(auth.token, count);
+          }
           return PageView(
             controller: verticalController,
             onPageChanged: (value) {
@@ -241,36 +247,13 @@ class _ExplorePageState extends State<ExplorePage> {
                                 ),
                                 gradient: LinearGradient(
                                   colors: [
-                                    HSLColor.fromAHSL(0, 0, 0, 1).toColor(),
-                                    HSLColor.fromAHSL(0.081, 0, 0, 0.9942)
-                                        .toColor(),
-                                    HSLColor.fromAHSL(0.155, 0, 0, 0.9776)
-                                        .toColor(),
-                                    HSLColor.fromAHSL(0.225, 0, 0, 0.9515)
-                                        .toColor(),
-                                    HSLColor.fromAHSL(0.29, 0, 0, 0.9167)
-                                        .toColor(),
-                                    HSLColor.fromAHSL(0.353, 0, 0, 0.8741)
-                                        .toColor(),
-                                    HSLColor.fromAHSL(0.412, 0, 0, 0.8244)
-                                        .toColor(),
-                                    HSLColor.fromAHSL(0.471, 0, 0, 0.7684)
-                                        .toColor(),
-                                    HSLColor.fromAHSL(0.529, 0, 0, 0.7068)
-                                        .toColor(),
-                                    HSLColor.fromAHSL(0.588, 0, 0, 0.6406)
-                                        .toColor(),
-                                    HSLColor.fromAHSL(0.647, 0, 0, 0.5709)
-                                        .toColor(),
-                                    HSLColor.fromAHSL(0.71, 0, 0, 0.4996)
-                                        .toColor(),
-                                    HSLColor.fromAHSL(0.775, 0, 0, 0.4297)
-                                        .toColor(),
-                                    HSLColor.fromAHSL(0.845, 0, 0, 0.3664)
-                                        .toColor(),
-                                    HSLColor.fromAHSL(0.919, 0, 0, 0.3187)
-                                        .toColor(),
-                                    HSLColor.fromAHSL(1, 0, 0, 0.3).toColor(),
+                                    Color(0xffffff).withOpacity(0.0),
+                                    Color(0xadadad).withOpacity(0.2),
+                                    Color(0x7a7a7a).withOpacity(0.4),
+                                    Color(0x737373).withOpacity(0.5),
+                                    Color(0x363636).withOpacity(.6),
+                                    Color(0x303030).withOpacity(.8),
+                                    Color(0x000000).withOpacity(.8),
                                   ],
                                   end: Alignment.bottomCenter,
                                   begin: Alignment.topCenter,
@@ -316,40 +299,38 @@ class _ExplorePageState extends State<ExplorePage> {
                                 children: [
                                   Column(
                                     children: [
-                                      Padding(
+                                      Container(
                                         padding: const EdgeInsets.symmetric(
                                             vertical: 8),
                                         child: Row(
                                           children: [
-                                            Text(
-                                              data[index]['name'][0]
-                                                      .toString()
-                                                      .toUpperCase() +
-                                                  data[index]['name']
-                                                      .toString()
-                                                      .substring(1) +
-                                                  ' ' +
-                                                  data[index]['surname'][0]
-                                                      .toString()
-                                                      .toUpperCase() +
-                                                  data[index]['surname']
-                                                      .toString()
-                                                      .substring(1),
-                                              style: TextStyle(
-                                                fontSize: 30,
-                                                fontWeight: FontWeight.w600,
-                                                color: Colors.white,
-                                                letterSpacing: 1.7,
+                                            SizedBox(
+                                              width: MediaQuery.of(context)
+                                                      .size
+                                                      .width -
+                                                  80,
+                                              child: Text(
+                                                data[index]['name'][0]
+                                                        .toString()
+                                                        .toUpperCase() +
+                                                    data[index]['name']
+                                                        .toString()
+                                                        .substring(1) +
+                                                    ' ' +
+                                                    data[index]['surname'][0]
+                                                        .toString()
+                                                        .toUpperCase() +
+                                                    data[index]['surname']
+                                                        .toString()
+                                                        .substring(1),
+                                                style: TextStyle(
+                                                  fontSize: 30,
+                                                  fontWeight: FontWeight.w600,
+                                                  color: Colors.white,
+                                                  letterSpacing: 1.7,
+                                                ),
                                               ),
                                             ),
-                                            // Text(
-                                            //   ', 18', //', ' + data[index]['age'],
-                                            //   style: TextStyle(
-                                            //     fontSize: 30,
-                                            //     fontWeight: FontWeight.w400,
-                                            //     color: Colors.white,
-                                            //   ),
-                                            // ),
                                           ],
                                         ),
                                       ),
@@ -358,14 +339,6 @@ class _ExplorePageState extends State<ExplorePage> {
                                             vertical: 8.0),
                                         child: Row(
                                           children: [
-                                            // Text(
-                                            //   'Instruments:',
-                                            //   style: TextStyle(
-                                            //     fontSize: 18,
-                                            //     fontWeight: FontWeight.w400,
-                                            //     color: Colors.white,
-                                            //   ),
-                                            // ),
                                             Padding(
                                               padding: const EdgeInsets.only(
                                                   left: 8.0),
@@ -481,7 +454,7 @@ Widget iconList(dynamic data, int index) {
     data[index]['instruments'][i].toString();
     widgets.add(
       Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 6.0),
+        padding: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 10),
         child: ImageIcon(
           AssetImage('Assets/' +
               data[index]['instruments'][i].toString().replaceAll('/', '') +

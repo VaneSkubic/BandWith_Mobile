@@ -22,11 +22,16 @@ class Explore with ChangeNotifier {
     _usersData.removeAt(index);
   }
 
-  Future<void> getUsers(String token) async {
+  Future<void> getUsers(String token, int count) async {
     final url = urlStart + 'ReadUserInfo.php/';
     try {
-      final response = await http.get(
+      final response = await http.post(
         Uri.parse(url),
+        body: json.encode(
+          {
+            'Count': count,
+          },
+        ),
         headers: {
           HttpHeaders.authorizationHeader: token,
         },
@@ -37,7 +42,7 @@ class Explore with ChangeNotifier {
         throw HttpException(responseData['error']);
       }
 
-      _usersData = responseData['data'];
+      _usersData.addAll(responseData['data']);
 
       notifyListeners();
     } catch (error) {

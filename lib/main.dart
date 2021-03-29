@@ -41,10 +41,12 @@ class MyApp extends StatelessWidget {
           title: 'BandWith',
           theme: !settings.theme
               ? ThemeData(
+                  accentColor: Colors.black,
                   brightness: Brightness.light,
                   fontFamily: 'Montserrat',
                 )
               : ThemeData(
+                  accentColor: Colors.black,
                   brightness: Brightness.dark,
                   fontFamily: 'Montserrat',
                 ),

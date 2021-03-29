@@ -119,8 +119,9 @@ class Settings with ChangeNotifier {
         body: json.encode(
           {
             'Radius': range,
-            'UIColor': theme.toString(),
-            'Notifications': notifications.toString(),
+            'UIColor': theme.toString() == null ? 'false' : 'true',
+            'Notifications':
+                notifications.toString() == null ? 'false' : 'true',
             'Image': encodedImage,
             'Audio': encodedAudio,
             'AudioTitle': audioTitle,
@@ -130,6 +131,7 @@ class Settings with ChangeNotifier {
           'authorization': token,
         },
       );
+
       final responseData = jsonDecode(response.body);
 
       if (responseData['error'] != null) {

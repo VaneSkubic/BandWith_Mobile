@@ -148,6 +148,8 @@ class _SettingsPageState extends State<SettingsPage> {
                 Icons.save_outlined,
               ),
               onPressed: () {
+                //remove next line
+                //_image = null;
                 settings.postSettings(auth.token, _notifications, _darkMode,
                     _rangeValue, _image, _audio);
               },
@@ -267,20 +269,26 @@ class _SettingsPageState extends State<SettingsPage> {
                       fontWeight: FontWeight.w500,
                     ),
                   ),
-                  IconButton(
-                    icon: AnimatedIcon(
-                      icon: AnimatedIcons.play_pause,
-                      progress: _animationController,
+                  Offstage(
+                    offstage:
+                        userSettings['AudioTitle'] == 'Unknown' ? true : false,
+                    child: IconButton(
+                      icon: AnimatedIcon(
+                        icon: AnimatedIcons.play_pause,
+                        progress: _animationController,
+                      ),
+                      onPressed: () {
+                        playAudio();
+                      },
                     ),
-                    onPressed: () {
-                      playAudio();
-                    },
                   ),
                 ],
               ),
               subtitle: _audio == null
                   ? Text(
-                      userSettings['AudioTitle'],
+                      userSettings['AudioTitle'] == 'Unknown'
+                          ? 'Add your SoundID!'
+                          : userSettings['AudioTitle'],
                     )
                   : Text(_audio.path.split("/").last),
               onTap: () {

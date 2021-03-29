@@ -190,50 +190,57 @@ class _InstrumentsPageState extends State<InstrumentsPage> {
             ),
           ),
           Expanded(
-            child: ListView.builder(
-              itemCount:
-                  filteredInstruments != null ? filteredInstruments.length : 0,
-              itemBuilder: (ctx, index) {
-                return Column(
-                  children: [
-                    Divider(),
-                    ListTile(
-                      contentPadding:
-                          EdgeInsets.symmetric(vertical: 10, horizontal: 30),
-                      title: Text(
-                        filteredInstruments[index] != null
-                            ? filteredInstruments[index].toString()
-                            : 'No instruments',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      leading: filteredInstruments[index] != null
-                          ? ImageIcon(AssetImage('Assets/' +
-                              filteredInstruments[index]
-                                  .toString()
-                                  .replaceAll('/', '') +
-                              '.png'))
-                          : null,
-                      trailing: IconButton(
-                        icon: Icon(Icons.delete_outline),
-                        onPressed: () {
-                          setState(() {
-                            userInstruments.forEach((key, value) {
-                              if (key == filteredInstruments[index]) {
-                                userInstruments[key] = 0;
-                              }
-                            });
-                            filteredInstruments.removeAt(index);
-                          });
-                        },
-                      ),
+            child: filteredInstruments.length == 0
+                ? Center(
+                    child: Text(
+                      'Add your instruments!',
                     ),
-                  ],
-                );
-              },
-            ),
+                  )
+                : ListView.builder(
+                    itemCount: filteredInstruments != null
+                        ? filteredInstruments.length
+                        : 0,
+                    itemBuilder: (ctx, index) {
+                      return Column(
+                        children: [
+                          Divider(),
+                          ListTile(
+                            contentPadding: EdgeInsets.symmetric(
+                                vertical: 10, horizontal: 30),
+                            title: Text(
+                              filteredInstruments[index] != null
+                                  ? filteredInstruments[index].toString()
+                                  : 'No instruments',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            leading: filteredInstruments[index] != null
+                                ? ImageIcon(AssetImage('Assets/' +
+                                    filteredInstruments[index]
+                                        .toString()
+                                        .replaceAll('/', '') +
+                                    '.png'))
+                                : null,
+                            trailing: IconButton(
+                              icon: Icon(Icons.delete_outline),
+                              onPressed: () {
+                                setState(() {
+                                  userInstruments.forEach((key, value) {
+                                    if (key == filteredInstruments[index]) {
+                                      userInstruments[key] = 0;
+                                    }
+                                  });
+                                  filteredInstruments.removeAt(index);
+                                });
+                              },
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                  ),
           ),
         ],
       ),

@@ -32,29 +32,31 @@ class AuthScreen extends StatelessWidget {
           _nameFocus.unfocus();
           _surnameFocus.unfocus();
         },
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Flexible(
-                child: Container(
-                  margin: EdgeInsets.only(bottom: 10.0, top: 60),
-                  padding:
-                      EdgeInsets.symmetric(vertical: 30.0, horizontal: 50.0),
-                  child: Image(
-                    image: AssetImage('Assets/Logo.png'),
+        child: LayoutBuilder(builder: (context, viewportConstraints) {
+          return SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Flexible(
+                  child: Container(
+                    margin: EdgeInsets.only(bottom: 10.0, top: 60),
+                    padding:
+                        EdgeInsets.symmetric(vertical: 30.0, horizontal: 50.0),
+                    child: Image(
+                      image: AssetImage('Assets/Logo.png'),
+                    ),
                   ),
                 ),
-              ),
-              Flexible(
-                flex: deviceSize.width > 600 ? 2 : 2,
-                child: AuthCard(),
-              ),
-            ],
-          ),
-        ),
+                Flexible(
+                  flex: deviceSize.width > 600 ? 2 : 2,
+                  child: AuthCard(),
+                ),
+              ],
+            ),
+          );
+        }),
       ),
     );
   }
@@ -69,7 +71,7 @@ class AuthCard extends StatefulWidget {
   _AuthCardState createState() => _AuthCardState();
 }
 
-class _AuthCardState extends State<AuthCard> {
+class _AuthCardState extends State<AuthCard> with TickerProviderStateMixin {
   int segmentedControlValue = 0;
 
   final GlobalKey<FormState> _formKey = GlobalKey();
@@ -82,24 +84,6 @@ class _AuthCardState extends State<AuthCard> {
   };
   var _isLoading = false;
   final _passwordController = TextEditingController();
-
-  void _showErrorDialog(String message) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text('An error occured'),
-        content: Text(message),
-        actions: [
-          TextButton(
-            child: Text('Okay'),
-            onPressed: () {
-              Navigator.of(ctx).pop();
-            },
-          ),
-        ],
-      ),
-    );
-  }
 
   Future<void> _submit() async {
     _formKey.currentState.save();
@@ -137,8 +121,8 @@ class _AuthCardState extends State<AuthCard> {
       }
       _hasError = true;
     } catch (error) {
-      const errorMessage = 'Could not authenticate, please try later';
-      _showErrorDialog(errorMessage);
+      errorMessage = 'Could not authenticate, please try later';
+      _hasError = true;
     }
     setState(() {
       _emailFocus.unfocus();
@@ -166,6 +150,8 @@ class _AuthCardState extends State<AuthCard> {
     _surnameController.clear();
 
     _authMode = _authMode == AuthMode.Signup ? AuthMode.Login : AuthMode.Signup;
+
+    _hasError = false;
   }
 
   @override
@@ -211,6 +197,10 @@ class _AuthCardState extends State<AuthCard> {
                             fillColor: Color(0xfff0f0f0),
                             filled: true,
                           ),
+                          onChanged: (value) {
+                            _authData['Name'] = value.trim()[0].toUpperCase() +
+                                value.trim().substring(1);
+                          },
                         ),
                       ],
                     ),
@@ -244,6 +234,11 @@ class _AuthCardState extends State<AuthCard> {
                             fillColor: Color(0xfff0f0f0),
                             filled: true,
                           ),
+                          onChanged: (value) {
+                            _authData['Surname'] =
+                                value.trim()[0].toUpperCase() +
+                                    value.trim().substring(1);
+                          },
                         ),
                       ],
                     ),
@@ -364,6 +359,9 @@ class _AuthCardState extends State<AuthCard> {
                 textAlign: TextAlign.center,
               ),
               TextButton(
+                style: TextButton.styleFrom(
+                  primary: Colors.black,
+                ),
                 onPressed: () {
                   setState(() {
                     _switchAuthMode();
@@ -372,6 +370,11 @@ class _AuthCardState extends State<AuthCard> {
                 child: Text(
                   _authMode == AuthMode.Login ? 'Sign Up!' : 'Log In!',
                   textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 1.2,
+                  ),
                 ),
               ),
             ],
