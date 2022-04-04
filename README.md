@@ -1,3 +1,3 @@
 # Bandwith
 
-Social media app
+Frontend for the social media platform BandWith
