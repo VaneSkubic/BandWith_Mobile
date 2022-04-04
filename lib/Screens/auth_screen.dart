@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import '../Providers/auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../models/http_exception.dart';
+import '../Models/http_exception.dart';
 
 enum AuthMode { Signup, Login }
 

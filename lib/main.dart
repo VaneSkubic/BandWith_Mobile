@@ -10,8 +10,8 @@ import 'package:provider/provider.dart';
 import './Providers/auth.dart';
 import './Providers/settings.dart';
 import './Providers/chat.dart';
-import './screens/auth_screen.dart';
-import './screens/splash_screen.dart';
+import './Screens/auth_screen.dart';
+import './Screens/splash_screen.dart';
 
 void main() {
   runApp(MyApp());

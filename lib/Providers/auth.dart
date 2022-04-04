@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import '../models/http_exception.dart';
+import '../Models/http_exception.dart';
 import '../consts.dart' as constants;
 
 const urlStart = constants.url;
